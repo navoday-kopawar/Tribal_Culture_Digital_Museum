@@ -1,0 +1,1273 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tribal Museum - Home</title>
+
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+
+  <style>
+    /* ===== Global & Header (unchanged intent) ===== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html,
+    body,
+    #root {
+      height: 100%
+    }
+
+    body {
+      font-family: "Georgia", serif;
+      background: #FFF8E7;
+      color: #3B2A1A;
+      line-height: 1.6
+    }
+
+    .app-wrapper {
+      width: 100%;
+      min-height: 100vh;
+      overflow-x: hidden
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: linear-gradient(135deg, #A0522D 0%, #4F2F1C 100%);
+      border-bottom: 3px solid #E6C17A;
+      z-index: 1000;
+      padding: 0 5%;
+      box-shadow: 0 4px 20px rgba(59, 42, 26, 0.3)
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0
+    }
+
+    .logo {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      text-decoration: none
+    }
+
+    .logo-img {
+      width: 56px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 12px;
+      background: transparent;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      border: 2px solid rgba(230, 193, 122, 0.12);
+      flex-shrink: 0
+    }
+
+    .logo-text {
+      color: #FFF8E7;
+      display: flex;
+      flex-direction: column;
+      line-height: 1
+    }
+
+    .logo-site {
+      font-weight: 700;
+      font-size: 18px
+    }
+
+    .logo-tag {
+      font-size: 12px;
+      opacity: 0.95;
+      color: rgba(255, 248, 231, 0.95)
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+      align-items: center
+    }
+
+    .nav-link {
+      color: #FFF8E7;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 550;
+      padding: 6px 0;
+      position: relative;
+      cursor: pointer
+    }
+
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 0;
+      height: 2px;
+      background: #E6C17A;
+      transition: width .25s ease
+    }
+
+    .nav-link:hover::after {
+      width: 100%
+    }
+
+    .nav-link:hover {
+      color: #E6C17A
+    }
+
+    .nav-link.active {
+      color: #E6C17A
+    }
+
+    .nav-link.active::after {
+      width: 100%
+    }
+
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: #FFF8E7;
+      font-size: 26px;
+      cursor: pointer;
+      padding: 6px
+    }
+
+    @media (max-width:768px) {
+      .mobile-menu-toggle {
+        display: block
+      }
+
+      .nav-menu {
+        position: fixed;
+        top: 74px;
+        left: -100%;
+        width: 100%;
+        background: linear-gradient(135deg, #4F2F1C 0%, #3B2A1A 100%);
+        flex-direction: column;
+        gap: 0;
+        padding: 18px 0;
+        transition: left .3s ease;
+        z-index: 1100
+      }
+
+      .nav-menu.active {
+        left: 0
+      }
+
+      .nav-link::after {
+        display: none
+      }
+
+      .logo-img {
+        width: 44px;
+        height: 44px
+      }
+
+      .logo-site {
+        font-size: 16px
+      }
+    }
+
+    /* ===== Preloader ===== */
+    .preloader {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #4F2F1C 0%, #A0522D 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      transition: opacity .5s, visibility .5s
+    }
+
+    .preloader.hidden {
+      opacity: 0;
+      visibility: hidden
+    }
+
+    .loader-spinner {
+      width: 64px;
+      height: 64px;
+      border: 5px solid rgba(230, 193, 122, 0.25);
+      border-top: 5px solid #E6C17A;
+      border-radius: 50%;
+      animation: spin 1s linear infinite
+    }
+
+    .loader-text {
+      margin-top: 18px;
+      color: #E6C17A;
+      letter-spacing: 2px;
+      font-size: 16px;
+      margin-left: 14px
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    /* ===== Hero ===== */
+    .hero-section {
+      position: relative;
+      width: 100%;
+      min-height: 88vh;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5%;
+      padding-top: 120px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #4F2F1C 0%, #A0522D 100%)
+    }
+
+    .tribal-pattern {
+      position: absolute;
+      inset: 0;
+      opacity: 0.08;
+      pointer-events: none;
+      background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, #E6C17A 35px, #E6C17A 37px), repeating-linear-gradient(-45deg, transparent, transparent 35px, #E6C17A 35px, #E6C17A 37px)
+    }
+
+    .hero-content {
+      flex: 1;
+      z-index: 10;
+      max-width: 640px;
+      transform: translateX(-40px);
+      opacity: 0;
+      animation: slideInLeft .9s forwards .2s
+    }
+
+    @keyframes slideInLeft {
+      to {
+        transform: translateX(0);
+        opacity: 1
+      }
+    }
+
+    .hero-title {
+      font-size: 56px;
+      line-height: 1.02;
+      font-weight: 700;
+      background: linear-gradient(135deg, #FFF8E7 0%, #E6C17A 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .hero-subtitle {
+      font-size: 20px;
+      color: #FFF8E7;
+      margin-top: 18px;
+      opacity: 0;
+      animation: fadeIn .9s forwards .5s
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1
+      }
+    }
+
+    .cta-button {
+      margin-top: 26px;
+      padding: 14px 36px;
+      border-radius: 40px;
+      background: linear-gradient(135deg, #E6C17A, #A0522D);
+      color: #3B2A1A;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 28px rgba(230, 193, 122, 0.35);
+      opacity: 0;
+      animation: fadeIn .9s forwards .8s
+    }
+
+    .hero-3d-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5
+    }
+
+    /* New image replacing the old canvas */
+    .hero-3d-image {
+      width: 100%;
+      max-width: 520px;
+      height: auto;
+      display: block;
+    }
+
+    #hero-3d-canvas {
+      width: 100%;
+      max-width: 520px;
+      height: 520px;
+      display: block
+    }
+
+    @media (max-width:900px) {
+      .hero-title {
+        font-size: 40px
+      }
+
+      #hero-3d-canvas {
+        max-width: 360px;
+        height: 360px
+      }
+    }
+
+    /* ===== About  ===== */
+    .about-section {
+      padding: 88px 5%;
+      background: linear-gradient(180deg, #FFF8E7 0%, #F3E2C5 100%);
+      text-align: center
+    }
+
+    .section-title {
+      font-size: 40px;
+      color: #A0522D;
+      margin-bottom: 18px
+    }
+
+    .about-content {
+      max-width: 900px;
+      margin: 0 auto;
+      font-size: 18px;
+      color: #3B2A1A;
+      line-height: 1.8
+    }
+
+    /* ===== Tribes Overview ===== */
+    .tribe-banner {
+      background: url("tribal-pattern.png") repeat, linear-gradient(135deg, #4f2f1c, #a0522d);
+      background-blend-mode: overlay;
+      padding: 60px 20px;
+      text-align: center;
+      color: #fff8e7;
+      border-bottom: 6px solid #e6c17a;
+      margin-top: 18px
+    }
+
+    .tribe-banner h1 {
+      font-size: 38px;
+      letter-spacing: 1px;
+      margin: 0
+    }
+
+    .tribe-banner p {
+      font-size: 16px;
+      margin-top: 8px;
+      color: #e6c17a
+    }
+
+    .tribe-list {
+      display: flex;
+      gap: 24px;
+      overflow-x: auto;
+      padding: 40px 24px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch
+    }
+
+    .tribe-list::-webkit-scrollbar {
+      height: 12px
+    }
+
+    .tribe-list::-webkit-scrollbar-thumb {
+      background-color: #a0522d;
+      border-radius: 10px;
+      border: 3px solid #fff8e7
+    }
+
+    .tribe-card {
+      flex: 0 0 300px;
+      scroll-snap-align: center;
+      border: 4px solid #a0522d;
+      border-radius: 14px;
+      background-color: #fff;
+      text-align: left;
+      padding: 14px;
+      transition: 0.4s ease;
+      min-width: 260px
+    }
+
+    .tribe-card img {
+      width: 100%;
+      height: 200px;
+      border-radius: 10px;
+      object-fit: cover;
+      display: block
+    }
+
+    .tribe-card h2 {
+      font-size: 20px;
+      margin-top: 10px;
+      color: #4f2f1c
+    }
+
+    .tribe-card p {
+      font-size: 14px;
+      margin-top: 6px;
+      color: #3b2a1a
+    }
+
+    .tribe-card:hover {
+      transform: scale(1.03);
+      border-color: #e6c17a;
+      background-color: #f5e1b8
+    }
+
+    .tribe-sublist {
+      list-style: none;
+      margin-top: 10px;
+      padding: 0;
+      font-size: 13px;
+      line-height: 1.4
+    }
+
+    .tribe-sublist li {
+      color: #4f2f1c;
+      text-align: left;
+      border-bottom: 1px dashed #e6c17a;
+      padding: 6px 0
+    }
+
+    .tribe-sublist li:last-child {
+      border-bottom: none
+    }
+
+    /* ===== Festivals & Celebrations ===== */
+    .festivals-section {
+      padding: 64px 5%;
+      background: linear-gradient(180deg, #FFF8E7 0%, #F7E6D0 100%)
+    }
+
+    .festivals-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 14px auto 0
+    }
+
+    .festival-card {
+      background: linear-gradient(135deg, #FFF8E7, #FFF1DA);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 6px 18px rgba(59, 42, 26, 0.08);
+      border: 2px solid rgba(160, 82, 45, 0.08);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start
+    }
+
+    .festival-card img {
+      width: 100px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      flex-shrink: 0;
+      border: 3px solid rgba(160, 82, 45, 0.06)
+    }
+
+    .festival-content h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #4f2f1c
+    }
+
+    .festival-content p {
+      margin: 6px 0 0;
+      font-size: 14px;
+      color: #3b2a1a
+    }
+
+    /* ===== HERITAGE GALLERY — 3 ROW HORIZONTAL SCROLL COLLAGE ===== */
+    #heritage {
+      padding: 40px 5%;
+      background: linear-gradient(180deg, #FFF9F0 0%, #F7E8D2 100%);
+      transition: max-height .45s ease, opacity .3s ease, padding .3s ease;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0
+    }
+
+    /* OPEN state (we will start page with this class applied) */
+    #heritage.open {
+      max-height: 2500px;
+      opacity: 1;
+      padding: 40px 5%
+    }
+
+    .heritage-inner {
+      max-width: 1200px;
+      margin: 0 auto
+    }
+
+    .heritage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px
+    }
+
+    .heritage-header h2 {
+      font-size: 34px;
+      color: #A0522D;
+      margin: 0
+    }
+
+    .heritage-close {
+      background: transparent;
+      border: 2px solid rgba(160, 82, 45, 0.12);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #3B2A1A
+    }
+
+    .gallery {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 320px;
+      grid-template-rows: repeat(3, 220px);
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+      align-items: start;
+    }
+
+    .gallery::-webkit-scrollbar {
+      height: 10px
+    }
+
+    .gallery::-webkit-scrollbar-thumb {
+      background: rgba(160, 82, 45, 0.6);
+      border-radius: 8px
+    }
+
+    .gallery-item {
+      width: 100%;
+      height: 100%;
+      display: block;
+      scroll-snap-align: center;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(59, 42, 26, 0.12);
+      background: #fff;
+      position: relative;
+    }
+
+    .gallery-item img,
+    .gallery-item video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .gallery-caption {
+      position: absolute;
+      left: 8px;
+      bottom: 8px;
+      right: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+      background: linear-gradient(180deg, rgba(255, 248, 231, 0.95), rgba(255, 248, 231, 0.85));
+      color: #3B2A1A;
+      border-radius: 6px;
+      backdrop-filter: blur(2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    @media (max-width:1000px) {
+      .gallery {
+        grid-auto-columns: 260px;
+        grid-template-rows: repeat(3, 190px)
+      }
+
+      .gallery-item {
+        border-radius: 10px
+      }
+    }
+
+    @media (max-width:640px) {
+
+      .gallery {
+        grid-auto-columns: 80%;
+        grid-template-rows: repeat(3, 160px);
+        gap: 12px
+      }
+
+      .gallery-item {
+        width: 100%;
+        height: 100%
+      }
+    }
+
+    /* ===== Map styles ===== */
+    .map-banner {
+      background: url("tribal-pattern.png") repeat, linear-gradient(135deg, #4f2f1c, #a0522d);
+      background-blend-mode: overlay;
+      padding: 54px 18px;
+      text-align: center;
+      color: #fff8e7;
+      border-bottom: 6px solid #e6c17a;
+      margin-top: 18px
+    }
+
+    .map-container {
+      display: flex;
+      justify-content: center;
+      padding: 36px 18px 60px 18px
+    }
+
+    .map-inner {
+      position: relative;
+      width: 70%;
+      max-width: 1000px;
+      min-width: 300px;
+      margin: auto
+    }
+
+    .india-map {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+      border: 6px solid #A0522D
+    }
+
+    .map-point {
+      position: absolute;
+      background: #A0522D;
+      padding: 6px 10px;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity .22s ease, transform .22s ease;
+      pointer-events: none;
+      transform: translateY(0)
+    }
+
+    .map-inner:hover .map-point {
+      opacity: 1;
+      transform: translateY(-2px)
+    }
+
+    .map-point.visible,
+    .map-point.active {
+      opacity: 1;
+      transform: translateY(-2px);
+      pointer-events: auto
+    }
+
+    .map-point::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      background: #E6C17A;
+      border: 3px solid #3B2A1A;
+      position: absolute;
+      left: -18px;
+      top: 4px;
+      border-radius: 50%
+    }
+
+    .mp1 {
+      top: 54%;
+      left: 41%
+    }
+
+    .mp2 {
+      top: 52%;
+      left: 53.5%
+    }
+
+    .mp3 {
+      top: 48%;
+      left: 54.5%
+    }
+
+    .mp4 {
+      top: 79%;
+      left: 45%
+    }
+
+    .mp5 {
+      top: 62%;
+      left: 30%
+    }
+
+    .mp6 {
+      top: 53%;
+      left: 69%
+    }
+
+    .footer {
+      padding: 36px 5%;
+      background: #A0522D;
+      color: #FFF8E7;
+      text-align: center;
+      border-top: 2px solid rgba(230, 193, 122, 0.5);
+      margin-top: 30px
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-wrapper">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <a class="logo" href="index.html">
+          <img src="logo.png" alt="Tribal Museum Logo" class="logo-img" />
+          <div class="logo-text">
+            <div class="logo-site">Tribal Culture Digital Museum</div>
+            <div class="logo-tag">Preserving Heritage</div>
+          </div>
+        </a>
+
+        <nav>
+          <ul class="nav-menu" id="navMenu">
+            <li><a class="nav-link active" href="#home">Home</a></li>
+            <li><a class="nav-link" href="#tribes">Tribes Overview</a></li>
+            <li><a class="nav-link" href="#festivals">Festivals &amp; Celebrations</a></li>
+            <li><a class="nav-link" href="#heritage">Heritage Gallery</a></li>
+            <li><a class="nav-link" href="#map">Interactive Map</a></li>
+          </ul>
+        </nav>
+
+        <button id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="toggle menu"
+          aria-expanded="false">☰</button>
+      </div>
+    </header>
+
+    <!-- Preloader -->
+    <div id="preloader" class="preloader" role="status" aria-hidden="false">
+      <div class="loader-spinner" aria-hidden="true"></div>
+      <div class="loader-text">Loading Experience...</div>
+    </div>
+
+    <!-- HERO -->
+    <section id="home" class="hero-section" aria-label="Hero">
+      <div class="tribal-pattern" aria-hidden="true"></div>
+
+      <div class="hero-content" role="region" aria-labelledby="hero-heading">
+        <h1 id="hero-heading" class="hero-title">Discover Ancient Heritage</h1>
+        <p class="hero-subtitle">Journey through centuries of tribal wisdom, art, and culture</p>
+        <button class="cta-button" id="cta-button">Explore Now</button>
+      </div>
+
+      <div class="hero-3d-container" aria-hidden="true">
+        <!-- Replaced 3D canvas with static 3D element image -->
+        <img src="logo.png" alt="Tribal 3D Cultural Element" class="hero-3d-image" loading="lazy" />
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="about-section">
+      <h2 class="section-title">Preserving Our Heritage</h2>
+      <div class="about-content">
+        The Tribal Museum is dedicated to preserving and celebrating the rich cultural heritage of indigenous
+        communities. Through our collection of artifacts, art, and interactive exhibits, we invite you to
+        explore the traditions, stories, and wisdom passed down through generations.
+      </div>
+    </section>
+
+    <!-- TRIBES -->
+    <section id="tribes">
+      <div class="tribe-banner">
+        <h1>Tribes of India</h1>
+        <p>Exploring Indigenous Identity, Lifestyle, Culture & Diversity</p>
+      </div>
+
+      <section class="tribe-list" aria-label="List of tribes">
+        <div class="tribe-card">
+          <img src="./tribes/gond.jpg" alt="Gond Tribe">
+          <h2>Gond Tribe</h2>
+          <p>Central India’s largest tribe famous for vibrant folk art & mythology.</p>
+          <ul class="tribe-sublist">
+            <li>🎨 Gond Painting</li>
+            <li>🎭 Folk Deity Myths</li>
+            <li>🌾 Forest Lifestyle</li>
+            <li>🪵 Iron & Wood Craft</li>
+          </ul>
+        </div>
+        <div class="tribe-card">
+          <img src="./tribes/santhal.jpg" alt="Santhal Tribe">
+          <h2>Santhal Tribe</h2>
+          <p>Rich in dance, music, agricultural life & traditional drum celebrations.</p>
+          <ul class="tribe-sublist">
+            <li>🥁 Tamak & Tumdak Drums</li>
+            <li>💃 Harvest Dance</li>
+            <li>🌱 Farming Culture</li>
+            <li>🎶 Tribal Song Cycles</li>
+          </ul>
+        </div>
+        <div class="tribe-card">
+          <img src="./tribes/bhil.jpg" alt="Bhil Tribe">
+          <h2>Bhil Tribe</h2>
+          <p>Known for bow-hunting, forest traditions & symbolic Pithora paintings.</p>
+          <ul class="tribe-sublist">
+            <li>🎯 Bow Hunt Tradition</li>
+            <li>🖼 Pithora Art</li>
+            <li>🔥 Fire Ritual Festivals</li>
+            <li>🌳 Forest Guardianship</li>
+          </ul>
+        </div>
+        <div class="tribe-card">
+          <img src="./tribes/toda.jpg" alt="Toda Tribe">
+          <h2>Toda Tribe</h2>
+          <p>Distinctive buffalo-wool shawls and sacred embroidery patterns.</p>
+          <ul class="tribe-sublist">
+            <li>🪢 Toda Shawl Embroidery</li>
+            <li>🐃 Buffalo Living Culture</li>
+            <li>🏔 Nilgiri Habitat</li>
+            <li>🛕 Temple Rites</li>
+          </ul>
+        </div>
+        <div class="tribe-card">
+          <img src="./tribes/warli.jpg" alt="Warli Tribe">
+          <h2>Warli Tribe</h2>
+          <p>Creators of world-famous Warli art & iconic circular dance formations.</p>
+          <ul class="tribe-sublist">
+            <li>🎨 Warli Stick Art</li>
+            <li>🕺 Tarpa Dance Circle</li>
+            <li>🌾 Harvest Festivity</li>
+            <li>🪵 Bamboo Craft</li>
+          </ul>
+        </div>
+        <div class="tribe-card">
+          <img src="./tribes/KhasiTribe.jpg" alt="Khasi Tribe">
+          <h2>Khasi Tribe</h2>
+          <p>Matriarchal society known for nature worship & bamboo craftsmanship.</p>
+          <ul class="tribe-sublist">
+            <li>🌿 Nature Worship</li>
+            <li>🎋 Bamboo Craft</li>
+            <li>👩‍👧 Matriarchal System</li>
+            <li>🎶 Drum Festivals</li>
+          </ul>
+        </div>
+      </section>
+    </section>
+
+    <!-- FESTIVALS -->
+    <section id="festivals" class="festivals-section" aria-labelledby="festivals-heading">
+      <h2 id="festivals-heading" class="section-title" style="text-align:center">Festivals & Celebrations</h2>
+      <div class="festivals-grid" role="list">
+        <div class="festival-card" role="listitem">
+          <img src="assets/Gaur Maria Dance.jpg" alt="Gaur Maria Dance">
+          <div class="festival-content">
+            <h3>Gaur Maria Dance</h3>
+            <p>Energetic ritual dance of the Gonds performed during harvest and festivals.</p>
+          </div>
+        </div>
+        <div class="festival-card" role="listitem">
+          <img
+            src="assets/Group of gondi tribes celebrating world tribal day by performing folk dance _ Premium Photo.jpg"
+            alt="Gondi Celebration">
+          <div class="festival-content">
+            <h3>Gondi Celebrations</h3>
+            <p>Community gatherings with drumming, folk-song cycles, and ritual performances.</p>
+          </div>
+        </div>
+        <div class="festival-card" role="listitem">
+          <img src="assets/A dance festival of the Angami Naga tribe.jpg" alt="Angami Naga Dance">
+          <div class="festival-content">
+            <h3>Angami Naga Festivals</h3>
+            <p>Colorful Naga festivals celebrating crops, community rites and warrior traditions.</p>
+          </div>
+        </div>
+        <div class="festival-card" role="listitem">
+          <img src="assets/Tribal Drums - shamanic drumming trance meditation.jpg" alt="Drum Festivals">
+          <div class="festival-content">
+            <h3>Drum & Ritual Festivals</h3>
+            <p>Shamanic drumming and trance rituals observed by several tribal groups.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HERITAGE GALLERY (now visible by default: class="open") -->
+    <section id="heritage" class="open" aria-labelledby="heritage-heading" role="region">
+      <div class="heritage-inner">
+        <div class="heritage-header">
+          <h2 id="heritage-heading">Heritage Gallery</h2>
+          <div><button id="heritageClose" class="heritage-close" aria-label="Close heritage gallery">Close</button>
+          </div>
+        </div>
+
+        <div class="gallery" id="heritageGallery" aria-live="polite">
+          <!-- Items inserted dynamically via JS from ./assets/ -->
+        </div>
+      </div>
+    </section>
+
+    <!-- MAP -->
+    <section id="map" class="map-banner" aria-labelledby="map-title">
+      <h1 id="map-title">Interactive Tribal Map of India</h1>
+      <p>Hover or tap the map to explore tribe settlement zones.</p>
+    </section>
+
+    <section class="map-container" aria-label="Interactive map">
+      <div class="map-inner" id="mapInner">
+        <img src="india-map.png" alt="India Tribal Map" class="india-map" id="indiaMap">
+        <div class="map-point mp1" data-id="mp1" tabindex="0"><span>Gond Tribe - MP, Chhattisgarh</span></div>
+        <div class="map-point mp2" data-id="mp2" tabindex="0"><span>Santhal Tribe - Jharkhand, WB</span></div>
+        <div class="map-point mp3" data-id="mp3" tabindex="0"><span>Bhil Tribe - Rajasthan, MP</span></div>
+        <div class="map-point mp4" data-id="mp4" tabindex="0"><span>Toda Tribe - Nilgiri, Tamil Nadu</span>
+        </div>
+        <div class="map-point mp5" data-id="mp5" tabindex="0"><span>Warli Tribe - Maharashtra, Gujarat</span>
+        </div>
+        <div class="map-point mp6" data-id="mp6" tabindex="0"><span>Khasi Tribe - Meghalaya</span></div>
+      </div>
+    </section>
+
+    <footer class="footer">© 2024 Tribal Museum — Preserving Heritage, Inspiring Future.</footer>
+  </div>
+
+  <!-- JS -->
+
+  <!-- Preloader hide -->
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const pre = document.getElementById('preloader');
+        if (pre) pre.classList.add('hidden');
+      }, 700);
+    });
+  </script>
+
+  <!-- (Safe) Hero 3D init – will simply do nothing now because canvas isn't present -->
+  <script>
+    (function () {
+      const canvas = document.getElementById('hero-3d-canvas');
+      if (canvas && window.THREE) {
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+
+        function resizeHero() {
+          const rect = canvas.getBoundingClientRect();
+          const size = Math.min(Math.max(rect.width, 200), 520);
+          renderer.setSize(size, size);
+          camera.aspect = 1;
+          camera.updateProjectionMatrix();
+        }
+        resizeHero();
+
+        const geo = new THREE.TorusKnotGeometry(0.9, 0.28, 120, 16);
+        const mat = new THREE.MeshPhongMaterial({ color: 0xA0522D, shininess: 80 });
+        const mesh = new THREE.Mesh(geo, mat);
+        scene.add(mesh);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+        const p1 = new THREE.PointLight(0xE6C17A, 1.3); p1.position.set(4, 4, 4); scene.add(p1);
+        const p2 = new THREE.PointLight(0xA0522D, 0.5); p2.position.set(-3, -2, 3); scene.add(p2);
+
+        camera.position.z = 4;
+
+        function animate() {
+          requestAnimationFrame(animate);
+          mesh.rotation.x += 0.008;
+          mesh.rotation.y += 0.01;
+          renderer.render(scene, camera);
+        }
+        animate();
+        window.addEventListener('resize', resizeHero);
+      }
+    })();
+  </script>
+
+  <!-- Map interactivity -->
+  <script>
+    (function () {
+      const mapInner = document.getElementById('mapInner');
+      if (!mapInner) return;
+      const points = Array.from(mapInner.querySelectorAll('.map-point'));
+      const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+
+      if (isTouch) {
+        points.forEach(p => {
+          p.style.pointerEvents = 'auto';
+          p.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isActive = p.classList.contains('active');
+            points.forEach(x => x.classList.remove('active'));
+            if (!isActive) p.classList.add('active');
+          });
+        });
+        document.addEventListener('click', (e) => {
+          if (!mapInner.contains(e.target)) points.forEach(x => x.classList.remove('active'));
+        });
+      } else {
+        points.forEach(p => {
+          p.addEventListener('mouseenter', () => p.classList.add('visible'));
+          p.addEventListener('mouseleave', () => p.classList.remove('visible'));
+          p.addEventListener('focus', () => p.classList.add('visible'));
+          p.addEventListener('blur', () => p.classList.remove('visible'));
+          p.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter' || ev.key === ' ') {
+              ev.preventDefault();
+              points.forEach(x => x.classList.remove('active'));
+              p.classList.add('active');
+            }
+          });
+        });
+        mapInner.addEventListener('click', (e) => {
+          if (!e.target.closest('.map-point')) points.forEach(x => x.classList.remove('active'));
+        });
+      }
+    })();
+  </script>
+
+  <!-- Heritage gallery builder -->
+  <script>
+    (function () {
+      const assetFiles = [
+        "22200-326050748_large.mp4",
+        "A dance festival of the Angami Naga tribe.jpg",
+        "A GROUP OF INDUS VALLEY TERRACOTTA FIGURES , HARAPPA, NORTH PAKISTAN, 3RD MILLENIUM BC  _ Christie's.jpg",
+        "African Musical Instruments Stock Image - Image of folk, circular_ 20136659.jpg",
+        "ai-generated-colorful-hispanic-traditional-mask-colorful-feathers.jpg",
+        "Archeological Museum Display.jpg",
+        "Casa Primitiva []_.jpg",
+        "Ceramic Art_.jpg",
+        "download (1).jpg",
+        "download (2).jpg",
+        "download (3).jpg",
+        "download (4).jpg",
+        "download (5).jpg",
+        "download (6).jpg",
+        "download (7).jpg",
+        "Download colorful traditional ethnic tribal pattern texture design background for free.jpg",
+        "From Function to Beauty.jpg",
+        "Gaur Maria Dance.jpg",
+        "Group of gondi tribes celebrating world tribal day by performing folk dance _ Premium Photo.jpg",
+        "Indian Gond Art on Canvas with Acrylic paints for wall hanging _ Etsy.jpg",
+        "Original World Culture Painting by Juli Bhowmik _ Folk Art on Paper _ Fusion.jpg",
+        "Pithora Painting ~`.jpg",
+        "Sohrai Khovar Painting.jpg",
+        "Sohrai with acrylic on paper.jpg",
+        "Tribal artist at work in Odisha.jpg",
+        "Tribal Drums - shamanic drumming trance meditation.jpg",
+        "Tribal museum.jpg",
+        "Vibrant Handcrafted Folk Art Souvenirs & Cultural Decor.jpg",
+        "Warli art.jpg",
+        "1b4676147568e324b086305f59f72581.jpg",
+        "2-Karmali.webp",
+        "4b048e2c90f2e88140fb31f719213bc6.jpg",
+        "7e705370e2fbc09ef961da8b515895f2.jpg",
+        "8b2c84ce93c9914779b16da88da1de6a.jpg",
+        "8f34dfd71cb04e7cc8211c06cf948665.jpg",
+        "9b9881eb552495caaf8c69d620fc0383.jpg",
+        "25f82ca03b6399baebefce0df44d5c19.jpg",
+        "70c94e9a506bb11754aac5f7b8fdb3d8.jpg",
+        "72c1be67fd2ddcb32b4dce504afd7cac.jpg",
+        "181bed6cb98bd9a03015942ecdad61ca.jpg",
+        "246cbf2d47ae28adc79f1741c4f78999.jpg",
+        "370a0a2d00e009a38847d4bb89e29dfa.jpg",
+        "671d516dc8d979488cca6e0c4b94715c.jpg",
+        "749fde91e8130b329fbcbd3ee9e434be (1).jpg",
+        "5213a0b13b39021ccea733156a16d981.jpg",
+        "a37c06400443acd8e8b93f577306faaa.jpg",
+        "b604e40cce9ab2b0af332734ff28324e.jpg",
+        "b1546a86788f4c6f3e68ca266a6cee18.jpg",
+        "e0df1596837b97f7d8f0114e3b45f977.jpg",
+      ];
+
+      const galleryEl = document.getElementById('heritageGallery');
+      const heritageSection = document.getElementById('heritage');
+      const heritageClose = document.getElementById('heritageClose');
+
+      function assetUrl(name) {
+        return './assets/' + encodeURIComponent(name).replace(/%2F/g, '/');
+      }
+
+      function buildGallery() {
+        if (!galleryEl) return;
+        galleryEl.innerHTML = '';
+        assetFiles.forEach(fname => {
+          const ext = fname.split('.').pop().toLowerCase();
+          const item = document.createElement('div');
+          item.className = 'gallery-item';
+
+          if (ext === 'mp4') {
+            const vid = document.createElement('video');
+            vid.src = assetUrl(fname);
+            vid.controls = true;
+            vid.playsInline = true;
+            vid.preload = 'metadata';
+            vid.setAttribute('aria-label', fname);
+            item.appendChild(vid);
+
+            const cap = document.createElement('div');
+            cap.className = 'gallery-caption';
+            cap.textContent = fname.replace(/\.[^/.]+$/, '');
+            item.appendChild(cap);
+          } else {
+            const img = document.createElement('img');
+            img.src = assetUrl(fname);
+            img.alt = fname.replace(/\.[^/.]+$/, '');
+            img.loading = 'lazy';
+            item.appendChild(img);
+
+            const cap = document.createElement('div');
+            cap.className = 'gallery-caption';
+            cap.textContent = img.alt;
+            item.appendChild(cap);
+          }
+
+          galleryEl.appendChild(item);
+        });
+      }
+
+      function openHeritage(scrollIntoView = true) {
+        heritageSection.classList.add('open');
+        if (scrollIntoView) {
+          setTimeout(() => {
+            document.getElementById('heritage-heading').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 160);
+        }
+      }
+      function closeHeritage() {
+        heritageSection.classList.remove('open');
+      }
+
+      const navHeritageLink = document.querySelector('.nav-link[href="#heritage"]');
+      if (navHeritageLink) {
+        navHeritageLink.addEventListener('click', (e) => {
+          e.preventDefault();
+
+          // Close mobile menu after click (for small screens)
+          if (window.innerWidth <= 768) {
+            const navMenu = document.getElementById('navMenu');
+            const mobileToggle = document.getElementById('mobileMenuToggle');
+            if (navMenu && mobileToggle) {
+              navMenu.classList.remove('active');
+              mobileToggle.textContent = '☰';
+              mobileToggle.setAttribute('aria-expanded', 'false');
+            }
+          }
+
+          if (heritageSection.classList.contains('open')) {
+            closeHeritage();
+          } else {
+            openHeritage();
+          }
+
+          document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+          navHeritageLink.classList.add('active');
+        });
+      }
+
+      if (heritageClose) heritageClose.addEventListener('click', () => {
+        closeHeritage();
+        if (navHeritageLink) navHeritageLink.classList.remove('active');
+      });
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => buildGallery());
+      } else buildGallery();
+    })();
+  </script>
+
+  <!-- Scroll observer + HAMBURGER MENU (fixed) -->
+  <script>
+    function observeElements() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) entry.target.classList.add('visible');
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.section-title, .about-content, .tribe-card, .festival-card, .category-card').forEach(el => observer.observe(el));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      observeElements();
+
+      const mobileToggle = document.getElementById('mobileMenuToggle');
+      const navMenu = document.getElementById('navMenu');
+      const navLinks = document.querySelectorAll('.nav-menu .nav-link');
+
+      if (mobileToggle && navMenu) {
+        mobileToggle.addEventListener('click', () => {
+          navMenu.classList.toggle('active');
+          const isOpen = navMenu.classList.contains('active');
+          mobileToggle.textContent = isOpen ? '✕' : '☰';
+          mobileToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+      }
+
+      // Close mobile menu after clicking any nav link
+      navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth <= 768 && navMenu && navMenu.classList.contains('active')) {
+            navMenu.classList.remove('active');
+            if (mobileToggle) {
+              mobileToggle.textContent = '☰';
+              mobileToggle.setAttribute('aria-expanded', 'false');
+            }
+          }
+        });
+      });
+    });
+  </script>
+
+  <!-- cloudflare-style iframe snippet preserved -->
+  <script>
+    (function () {
+      function c() {
+        var b = a.contentDocument || a.contentWindow.document;
+        if (b) {
+          var d = b.createElement('script');
+          d.innerHTML = "window.__CF$cv$params={r:'9aabeae014da84d1',t:'MTc2NTE5MzI4OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+          b.getElementsByTagName('head')[0].appendChild(d)
+        }
+      }
+      if (document.body) {
+        var a = document.createElement('iframe');
+        a.height = 1;
+        a.width = 1;
+        a.style.position = 'absolute';
+        a.style.top = 0;
+        a.style.left = 0;
+        a.style.border = 'none';
+        a.style.visibility = 'hidden';
+        document.body.appendChild(a);
+        if ('loading' !== document.readyState) c();
+        else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c);
+        else {
+          var e = document.onreadystatechange || function () { };
+          document.onreadystatechange = function (b) {
+            e(b);
+            'loading' !== document.readyState && (document.onreadystatechange = e, c())
+          }
+        }
+      }
+    })();
+  </script>
+</body>
+
+</html>
