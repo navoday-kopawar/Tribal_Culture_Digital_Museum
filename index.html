@@ -6,6 +6,17 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tribal Museum - Home</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9D24B9DRJ7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9D24B9DRJ7', {
+    anonymize_ip: true
+  });
+</script>
 
   <style>
     * {
@@ -1147,7 +1158,10 @@
           Journey through centuries of tribal wisdom, art and culture
         </p>
 
-        <button class="cta-button" href="#home">Explore Now</button>
+        <button class="cta-button" onclick="gtag('event','click',{
+    event_category:'CTA',
+    event_label:'Explore Now'
+  });">Explore Now</button>
       </div>
 
       <!-- DESKTOP HERO IMAGE (side image, hidden on mobile) -->
@@ -1682,10 +1696,23 @@
 
 
       navLinks.forEach(link => {
-        link.addEventListener('click', () => {
-          if (window.innerWidth <= 768) closeMenu();
-        });
+  link.addEventListener('click', () => {
+    const label = link.textContent.trim();
+
+    // Google Analytics navigation tracking
+    if (typeof gtag === 'function') {
+      gtag('event', 'navigation_click', {
+        event_category: 'Navigation',
+        event_label: label
       });
+    }
+
+    if (window.innerWidth <= 768 && navMenu.classList.contains('active')) {
+      closeMenu();
+    }
+  });
+});
+
 
 
       document.addEventListener('click', (e) => {
@@ -1865,3 +1892,4 @@
 </body>
 
 </html>
+
